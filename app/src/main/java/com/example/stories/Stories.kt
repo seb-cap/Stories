@@ -211,7 +211,7 @@ fun StoriesContent(drawables: List<Any?>, slides: List<List<Any?>>, returnHome: 
 @Composable
 fun AddStory(goHome: () -> Unit, addStory: (String, String, String, String, String, Uri?) -> Boolean) {
     Column (
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+        modifier = Modifier.fillMaxSize()
     ) {
         Column(
             modifier = Modifier
@@ -224,7 +224,8 @@ fun AddStory(goHome: () -> Unit, addStory: (String, String, String, String, Stri
                     )
                 )
                 .fillMaxWidth()
-                .fillMaxHeight(0.9F),
+                .fillMaxHeight(0.9F)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
@@ -262,14 +263,14 @@ fun AddStory(goHome: () -> Unit, addStory: (String, String, String, String, Stri
             TextField(
                 value = linkText,
                 onValueChange = { linkText = it },
-                label = { Text("Link Text") },
+                label = { Text("Link Text (Optional)") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
             TextField(
                 value = url,
                 onValueChange = { url = it },
-                label = { Text("URL") },
+                label = { Text("URL (Optional)") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -345,7 +346,7 @@ fun About(goHome: () -> Unit) {
                 blurRadius = 13F
             )),
             color = Color.White)
-            Text(text = "This app was made at the University of Washington in Winter Quarter 2023 for EDSPE 304's What I Learned Project.", color = Color.White, style = TextStyle(shadow = Shadow(
+            Text(text = "This app was made by Sebastian Capsular at the University of Washington in Winter Quarter 2023 for EDSPE 304's What I Learned Project.", color = Color.White, style = TextStyle(shadow = Shadow(
                 color = Color.Black,
                 blurRadius = 13F
             )))
