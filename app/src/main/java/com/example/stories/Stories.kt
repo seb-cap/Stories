@@ -8,7 +8,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -36,7 +38,7 @@ import coil.compose.rememberAsyncImagePainter
 
 var FINAL_SLIDE = 7
 
-val _drawables = mutableStateListOf<Any?>(
+val drawables_mutate = mutableStateListOf<Any?>(
     R.drawable.stella_young,
     R.drawable.julian_crop,
     R.drawable.warren_crop,
@@ -46,9 +48,10 @@ val _drawables = mutableStateListOf<Any?>(
     R.drawable.deej_crop,
     R.drawable.owen_crop
 )
-val drawables: List<Any?> = _drawables
 
-val _slides = mutableStateListOf<List<Any?>>(
+val drawables: List<Any?> = drawables_mutate
+
+val slides_mutate = mutableStateListOf<List<Any?>>(
     listOf(
         R.string.stella_young,
         R.string.stella_subtitle,
@@ -106,18 +109,18 @@ val _slides = mutableStateListOf<List<Any?>>(
         R.string.owen_url
     )
 )
-val slides: List<List<Any?>> = _slides
+val slides: List<List<Any?>> = slides_mutate
 
 @Composable
 fun StoriesApp() {
     var page by rememberSaveable {mutableStateOf(0)}
 
     fun addSlide(words: List<String>) {
-        _slides.add(words)
+        slides_mutate.add(words)
     }
 
     fun addDrawable(drawable: Any?) {
-        _drawables.add(drawable)
+        drawables_mutate.add(drawable)
     }
 
     when (page) {
@@ -126,7 +129,7 @@ fun StoriesApp() {
         2 -> AddStory(
             goHome = {page = 0},
             addStory = { title: String, sub: String, desc: String, link: String, url: String, image:Uri? ->
-                if (title == "" || (link == "").xor(url == "") || !URLUtil.isValidUrl(url)) {
+                if (title == "" || (link == "").xor(url == "") || (url != "" && !URLUtil.isValidUrl(url))) {
                     return@AddStory false
                 }
                 addSlide(listOf(title, sub, desc, link, url))
@@ -164,6 +167,9 @@ fun HomePage(changePage: (Int) -> Unit) {
         Button(onClick = {changePage(4)} ) {
             Text(text = "About", textAlign = TextAlign.Center)
         }
+        Button(onClick = {}) {
+            Text(text = "Settings (WIP)", textAlign = TextAlign.Center)
+        }
     }
 }
 
@@ -175,7 +181,8 @@ fun StoriesContent(drawables: List<Any?>, slides: List<List<Any?>>, returnHome: 
         Image(
             painter = if (cur is Int) painterResource(cur) else rememberAsyncImagePainter(cur),
             contentDescription = stringResource(R.string.background_description),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            alpha = 0.5F
         )
         Column {
             BasicSlide(
@@ -204,7 +211,7 @@ fun StoriesContent(drawables: List<Any?>, slides: List<List<Any?>>, returnHome: 
 @Composable
 fun AddStory(goHome: () -> Unit, addStory: (String, String, String, String, String, Uri?) -> Boolean) {
     Column (
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
     ) {
         Column(
             modifier = Modifier
@@ -318,7 +325,8 @@ fun About(goHome: () -> Unit) {
                 )
                 .fillMaxWidth()
                 .fillMaxHeight(0.9F)
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = 20.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
@@ -356,19 +364,33 @@ fun About(goHome: () -> Unit) {
 @Composable
 fun LearnMore(goHome: () -> Unit) {
     Column (modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(0.9F)
-            .background(
-                brush = Brush.horizontalGradient(
-                    listOf(
-                        Color.Blue,
-                        Color.Cyan
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.9F)
+                .background(
+                    brush = Brush.horizontalGradient(
+                        listOf(
+                            Color.Blue, Color.Blue
+                        )
                     )
                 )
-            )
-        ) {
-            Text(text = "Work in Progress.")
+                .padding(horizontal = 20.dp)
+                .padding(top = 10.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+
+            ) {
+            Text(text = "The following are some useful resources for learning about disability, inspired by discussions in class.", textAlign = TextAlign.Center)
+            LinkText(str = "Disability Language Guide (Stanford)", url = "https://disability.stanford.edu/sites/g/files/sbiybj26391/files/media/file/disability-language-guide-stanford_1.pdf")
+            LinkText(str = "What is intersectionality? (Accessibility.com)", url = "https://www.accessibility.com/blog/disability-language-intersectionality")
+            LinkText(str = "Current evolution of ASL and intersectionality (New York Times)", url = "https://www.nytimes.com/interactive/2022/07/26/us/american-sign-language-changes.html")
+            LinkText(str = "How to handle ableism in the classroom (Perkins)", url = "https://www.perkins.org/resource/tips-handling-academic-ableism-classroom/")
+            LinkText(str = "Medical vs Social models of disability (University of San Francisco)", url = "https://odpc.ucsf.edu/clinical/patient-centered-care/medical-and-social-models-of-disability")
+            LinkText(str = "History of ableism + more (Stanford)", url = "https://studentaffairs.stanford.edu/stanford-against-hate/ableism")
+            LinkText(str = "Problematic history of disability treatment (National Park Service)", url = "https://www.nps.gov/articles/disabilityhistoryearlytreatment.htm")
+            LinkText(str = "Fixed: A nuanced documentary on human enhancements", url = "https://www.fixedthemovie.com/")
         }
         Box(
             contentAlignment = Alignment.Center,
@@ -387,8 +409,10 @@ fun BasicSlide(title: String, subtitle: String, description: String, linkText: S
         modifier = modifier
             .fillMaxWidth()
             .fillMaxHeight(0.9F)
+            .verticalScroll(rememberScrollState())
     ) {
         TitleAndSubtitle(title = title, sub = subtitle, modifier = modifier)
+        Spacer(modifier = Modifier.height(25.dp))
         DescriptionAndLink(
             desc = description,
             linkText = linkText,
@@ -456,6 +480,7 @@ fun DescriptionAndLink(desc: String, linkText: String, url: String, modifier: Mo
 
 @Composable
 fun LinkText(modifier: Modifier = Modifier, str: String, textAlign: TextAlign = TextAlign.Center, url: String) {
+    if (url == "") return
     val annotatedString = buildAnnotatedString {
         append(str)
         addStyle(
