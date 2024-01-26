@@ -346,7 +346,7 @@ fun About(goHome: () -> Unit) {
                 blurRadius = 13F
             )),
             color = Color.White)
-            Text(text = "This app was made by Sebastian Capsular at the University of Washington in Winter Quarter 2023 for EDSPE 304's What I Learned Project.", color = Color.White, style = TextStyle(shadow = Shadow(
+            Text(text = "This app was made by Sebastian Caprarulo at the University of Washington in Winter Quarter 2023 for EDSPE 304's What I Learned Project.", color = Color.White, style = TextStyle(shadow = Shadow(
                 color = Color.Black,
                 blurRadius = 13F
             )))
